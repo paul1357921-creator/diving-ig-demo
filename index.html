@@ -22,6 +22,7 @@ header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:
 .msg{max-width:80%;padding:9px 13px;border-radius:18px;font-size:15px;line-height:1.5;white-space:pre-line;word-break:break-word}
 .bot{align-self:flex-start;background:var(--bot)}
 .me{align-self:flex-end;background:var(--me);color:#fff}
+.storycard{border:1px dashed #555;background:#1b1b1b;font-size:14px}
 .sys{align-self:center;color:var(--sub);font-size:12px;text-align:center;padding:2px 10px}
 .typing{align-self:flex-start;background:var(--bot);border-radius:18px;padding:11px 14px;display:flex;gap:4px}
 .typing i{width:6px;height:6px;border-radius:50%;background:var(--sub);animation:b 1s infinite}
@@ -104,12 +105,20 @@ async function intro(){busy=true;await bot('哈囉～我是酷落潛水的自動
 async function flowInfo(){await bot('目前示範這幾種活動，你想先看哪一個？');chips([['SUP＋深度浮潛',()=>actInfo('SUP＋深度浮潛')],['體驗潛水',()=>actInfo('體驗潛水')],['回主選單',back]])}
 async function back(){await bot('好唷，回到主選單～');main()}
 async function actInfo(a){
-  if(a==='SUP＋深度浮潛')await bot('兩項可以排在同一個場次，一場約 1.5～2 小時唷。第一次玩也可以，教練會先教～','（示範：時長與包含項目取自過去對話，正式版要用店家核准的資料）');
-  else await bot('體驗潛水由教練一步一步帶你，一場約 1.5～2 小時。下水前會請你先確認身體狀況，適不適合要由教練判斷唷。','（示範：正式版要用店家核准的資料）');
-  chips([['大概多少錢？',price],['我想預約這個',()=>flowBook(a)],['找店員聊',flowHuman],['回主選單',back]])
+  if(a==='SUP＋深度浮潛')await bot('兩項可以排在同一場，約 1.5～2 小時唷。','第一次玩也可以，教練會先教～','（示範：時長與包含項目取自過去對話，正式版要用店家核准的資料）');
+  else await bot('體驗潛水由教練一步一步帶你，一場約 1.5～2 小時。','下水前會先確認身體狀況，適不適合要由教練判斷唷。','（示範：正式版要用店家核准的資料）');
+  chips([['大概多少錢？',price],['長輩或新手也可以嗎？',story],['我想預約這個',()=>flowBook(a)],['找店員聊',flowHuman],['回主選單',back]])
+}
+function card(t,s){const d=document.createElement('div');d.className='msg bot storycard';d.innerHTML='<b></b><br><span></span>';d.querySelector('b').textContent=t;d.querySelector('span').textContent=s;log.appendChild(d);log.scrollTop=log.scrollHeight}
+async function story(){
+  await bot('店裡有帶過長輩和不同狀況的客人下水～我放一則示意卡片給你看。');
+  card('【示意】人物故事貼文','長輩完成人生夢想清單的影片（連結要店家核准）');
+  await bot('實際能不能參加，要請教練確認唷。我幫你轉給店員～');
+  flag('待教練確認：長輩或身體條件');
+  chips([['我想預約',()=>flowBook()],['看看店員端',async()=>{openStaff()}],['回主選單',back]])
 }
 async function price(){
-  await bot('費用我會照店家核准的現行價格表回覆。示範版沒有放入價格，這題我先幫你請店員確認唷。');
+  await bot('費用我會照店家核准的現行價格表回覆。','示範版沒有放入價格，這題我先幫你請店員確認唷。');
   flag('待店員回覆：費用');
   chips([['我想預約',()=>flowBook()],['看看店員端',async()=>{openStaff()}],['回主選單',back]])
 }
@@ -155,7 +164,8 @@ const R=[
  [/取消|退款|改期|颱風|下雨|付款|匯款|收據|發票|訂單|換宿|打工/,async()=>{await bot('這個牽涉到訂單或個別安排，要請店員處理唷，我幫你轉過去～');flag('待店員處理：訂單或個別安排')}],
  [/錢|費用|價|貴|多少/,price],
  [/多久|幾小時|時長|多長/,async()=>{await bot('一場大約 1.5～2 小時唷。（示範：正式版要用店家核准的資料）');chips([['我想預約',()=>flowBook()],['回主選單',back]])}],
- [/新手|第一次|不會游|怕水|沒玩過/,async()=>{await bot('第一次玩也可以～教練會先教基本的，再一步一步帶你。你們預計哪天來？我先幫你記下來。');chips([['我想預約',()=>flowBook()],['回主選單',back]])}],
+ [/長輩|爺爺|奶奶|老人|銀髮|身障|行動不便/,story],
+ [/新手|第一次|不會游|怕水|沒玩過/,async()=>{await bot('第一次玩也可以～教練會先教基本的。','你們預計哪天來？我先幫你記下來。');chips([['我想預約',()=>flowBook()],['回主選單',back]])}],
  [/帶|準備|防曬|泳衣|毛巾|穿/,async()=>{await bot('出發前請穿好泳裝、帶水瓶和毛巾，也請不要擦防曬乳或保養品唷。（示範：正式版要用店家核准的資料）');chips([['回主選單',back]])}],
  [/預約|訂位|報名|想訂/,()=>flowBook()],
  [/活動|浮潛|SUP|潛水|體驗/,flowInfo]
