@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>酷落潛水 IG 小幫手示意</title>
+<style>
+:root{--bg:#000;--panel:#121212;--line:#262626;--bot:#262626;--me:#3797f0;--text:#f5f5f5;--sub:#a8a8a8;--warn:#f5c518;--ok:#58c322}
+@media (prefers-color-scheme:light){:root:not([data-force]){--bg:#000}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}
+.app{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--bg);position:relative}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+.av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0a84c6,#38c6c0);display:grid;place-items:center;font-weight:700;font-size:15px}
+.who{flex:1;min-width:0}.who b{display:block;font-size:15px}.who span{font-size:12px;color:var(--sub)}
+.hbtn{background:none;border:1px solid var(--line);color:var(--text);border-radius:16px;padding:6px 12px;font-size:13px;position:relative}
+.hbtn .dot{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--warn);display:none}
+.hbtn.on .dot{display:block}
+.banner{background:#1c1a0e;color:var(--warn);font-size:12px;padding:6px 16px;border-bottom:1px solid var(--line);line-height:1.5}
+#log{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;padding:9px 13px;border-radius:18px;font-size:15px;line-height:1.5;white-space:pre-line;word-break:break-word}
+.bot{align-self:flex-start;background:var(--bot)}
+.me{align-self:flex-end;background:var(--me);color:#fff}
+.sys{align-self:center;color:var(--sub);font-size:12px;text-align:center;padding:2px 10px}
+.typing{align-self:flex-start;background:var(--bot);border-radius:18px;padding:11px 14px;display:flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--sub);animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,60%,100%{opacity:.3}30%{opacity:1}}
+#chips{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px;min-height:8px}
+#chips button{background:none;color:var(--text);border:1px solid #555;border-radius:18px;padding:9px 14px;font-size:14px}
+#chips button:active{background:#222}
+form{display:flex;gap:8px;padding:8px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+#txt{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:20px;padding:10px 14px;font-size:16px;outline:none}
+form button{background:none;border:none;color:var(--me);font-size:15px;font-weight:600;padding:0 6px}
+.sheet{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end}
+.sheet.open{display:flex}
+.card{width:100%;background:#1a1a1a;border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:80%;overflow:auto}
+.card h2{margin:0 0 4px;font-size:17px}.card p.s{margin:0 0 12px;color:var(--sub);font-size:12px;line-height:1.5}
+.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.row span:first-child{color:var(--sub);flex:none}.row span:last-child{text-align:right}
+.st{display:inline-block;background:#2b2410;color:var(--warn);border-radius:10px;padding:2px 9px;font-size:13px}
+.st.ok{background:#14250b;color:var(--ok)}
+.close{margin-top:14px;width:100%;background:var(--me);color:#fff;border:none;border-radius:12px;padding:12px;font-size:15px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="av">酷</div>
+    <div class="who"><b>酷落潛水（示意）</b><span>自動小幫手・非正式客服</span></div>
+    <button class="hbtn" id="staffBtn" type="button">店員端<span class="dot"></span></button>
+    <button class="hbtn" id="resetBtn" type="button">重來</button>
+  </header>
+  <div class="banner">這是客服流程示意：台詞與資料都是示範，沒有連到真實 IG，也不會收集任何資料。</div>
+  <div id="log" aria-live="polite"></div>
+  <div id="chips"></div>
+  <form id="f" autocomplete="off">
+    <input id="txt" type="text" placeholder="也可以自己打字問問看…" enterkeyhint="send">
+    <button type="submit">傳送</button>
+  </form>
+  <div class="sheet" id="sheet">
+    <div class="card">
+      <h2>店員端看到的</h2>
+      <p class="s">客人確認後，店員拿到的是最新整理好的一張摘要，不用再從頭問一輪。</p>
+      <div id="staffRows"></div>
+      <button class="close" id="closeSheet" type="button">關閉</button>
+    </div>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const log=$('#log'),chipsEl=$('#chips'),txt=$('#txt');
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let S,busy=false;
+
+function fresh(){return{activity:'尚未選擇',date:'尚未填寫',people:null,peopleOld:[],time:'尚未填寫',coach:'尚未填寫',status:'目前沒有待處理的案件',ok:false,paused:false}}
+function reset(){S=fresh();log.innerHTML='';chipsEl.innerHTML='';busy=false;renderStaff();$('#staffBtn').classList.remove('on');intro()}
+
+function add(who,t){const d=document.createElement('div');d.className='msg '+who;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
+function sys(t){const d=document.createElement('div');d.className='sys';d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
+async function bot(...ts){for(const t of ts){const ty=document.createElement('div');ty.className='typing';ty.innerHTML='<i></i><i></i><i></i>';log.appendChild(ty);log.scrollTop=log.scrollHeight;await sleep(550);ty.remove();add('bot',t)}}
+function chips(list){chipsEl.innerHTML='';list.forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>pick(label,fn);chipsEl.appendChild(b)})}
+async function pick(label,fn){if(busy)return;busy=true;chipsEl.innerHTML='';add('me',label);await fn();busy=false}
+
+function renderStaff(){
+  const p=S.people?(S.peopleOld.length?S.peopleOld.map(x=>x+' 位').join(' → ')+' → 最新 '+S.people+' 位':S.people+' 位'):'尚未填寫';
+  const rows=[['活動',S.activity],['日期',S.date],['希望時段',S.time],['人數',p],['特別要求',S.coach],['提醒','個別身體狀況請教練確認']];
+  $('#staffRows').innerHTML=rows.map(r=>`<div class="row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('')+
+    `<div class="row"><span>狀態</span><span><span class="st ${S.ok?'ok':''}">${S.status}</span></span></div>`+
+    (S.paused?'<div class="row"><span>小幫手</span><span>已暫停這串對話</span></div>':'');
+}
+function flag(status,ok){S.status=status;S.ok=!!ok;renderStaff();$('#staffBtn').classList.add('on')}
+function openStaff(){renderStaff();$('#sheet').classList.add('open');$('#staffBtn').classList.remove('on')}
+$('#staffBtn').onclick=openStaff;
+$('#closeSheet').onclick=()=>$('#sheet').classList.remove('open');
+$('#sheet').onclick=e=>{if(e.target.id==='sheet')e.currentTarget.classList.remove('open')};
+$('#resetBtn').onclick=reset;
+
+const main=()=>chips([['了解活動與費用',flowInfo],['我想預約',()=>flowBook()],['我想找真人',flowHuman]]);
+
+async function intro(){busy=true;await bot('哈囉～我是酷落潛水的自動小幫手🙂','想先了解活動、留預約需求，還是找店員聊？\n（也可以直接打字問我）');main();busy=false}
+
+async function flowInfo(){await bot('目前示範這幾種活動，你想先看哪一個？');chips([['SUP＋深度浮潛',()=>actInfo('SUP＋深度浮潛')],['體驗潛水',()=>actInfo('體驗潛水')],['回主選單',back]])}
+async function back(){await bot('好唷，回到主選單～');main()}
+async function actInfo(a){
+  if(a==='SUP＋深度浮潛')await bot('兩項可以排在同一個場次，一場約 1.5～2 小時唷。第一次玩也可以，教練會先教～','（示範：時長與包含項目取自過去對話，正式版要用店家核准的資料）');
+  else await bot('體驗潛水由教練一步一步帶你，一場約 1.5～2 小時。下水前會請你先確認身體狀況，適不適合要由教練判斷唷。','（示範：正式版要用店家核准的資料）');
+  chips([['大概多少錢？',price],['我想預約這個',()=>flowBook(a)],['找店員聊',flowHuman],['回主選單',back]])
+}
+async function price(){
+  await bot('費用我會照店家核准的現行價格表回覆。示範版沒有放入價格，這題我先幫你請店員確認唷。');
+  flag('待店員回覆：費用');
+  chips([['我想預約',()=>flowBook()],['看看店員端',async()=>{openStaff()}],['回主選單',back]])
+}
+
+async function flowBook(a){
+  S.people=null;S.peopleOld=[];
+  if(a){S.activity=a;await bot('好唷，幫你記下「'+a+'」。')}
+  else{await bot('好唷～先選一個你想了解的活動：');return chips([['SUP＋深度浮潛',()=>setAct('SUP＋深度浮潛')],['體驗潛水',()=>setAct('體驗潛水')],['還不確定',()=>setAct('還不確定，請店員建議')]])}
+  askDate()
+}
+async function setAct(a){S.activity=a;await bot('好唷，記下「'+a+'」。');askDate()}
+async function askDate(){await bot('預計哪一天呢？（示範日期）');chips([['11/21（六）',()=>setDate('11/21（六）')],['11/22（日）',()=>setDate('11/22（日）')],['還沒決定',()=>setDate('還沒決定')]])}
+async function setDate(d){S.date=d;await bot('收到，'+d+'。大概幾位一起來？');chips([['4 位',()=>setPeople(4)],['5 位',()=>setPeople(5)],['6 位',()=>setPeople(6)]])}
+async function setPeople(n){S.people=n;await bot('好的，'+n+' 位。比較想排哪個時段？');chips([['上午',()=>setTime('上午')],['下午',()=>setTime('下午')],['都可以',()=>setTime('都可以')]])}
+async function setTime(t){S.time=t;await bot('有沒有想指定的教練，或其他特別要求嗎？');chips([['想指定之前認識的教練',()=>setCoach('指定教練')],['沒有特別要求',()=>setCoach('無')]])}
+async function setCoach(c){S.coach=c;summary()}
+async function summary(){
+  await bot('我跟你確認一下👇\n活動：'+S.activity+'\n日期：'+S.date+'\n人數：'+S.people+' 位\n時段：'+S.time+'\n特別要求：'+S.coach+'\n\n對嗎？');
+  chips([['沒錯，交給店員',submit],['人數要改',editPeople],['重新填',()=>flowBook()]])
+}
+async function editPeople(){await bot('好唷，改成幾位呢？');chips([['5 位',()=>changeP(5)],['6 位',()=>changeP(6)],['8 位',()=>changeP(8)]])}
+async function changeP(n){
+  if(S.people!==n)S.peopleOld.push(S.people);S.people=n;
+  await bot('好唷，幫你改成 '+n+' 位。更新後的資料我會一起交給店員，店員拿到的是最新版。');summary()
+}
+async function submit(){
+  await bot('收到～我把活動、日期、人數和你的需求整理好交給店員了。','名額和教練要由店員確認，確認前還不算訂到唷。');
+  flag('待店員確認名額與排班');
+  chips([['看看店員端收到什麼',async()=>{openStaff()}],['回主選單',back]])
+}
+
+async function flowHuman(){
+  S.paused=true;flag('真人接手中');
+  await bot('好唷，我請店員來接手，請稍等～');sys('小幫手已暫停這串對話，避免兩邊同時回');
+  chips([['看看店員端',async()=>{openStaff()}],['（示範）店員處理完，交還小幫手',resume]])
+}
+async function resume(){S.paused=false;flag('已交還小幫手',true);await bot('嗨～我回來了，還有什麼我可以幫你的嗎？');main()}
+
+/* 自由輸入：關鍵字對應，答不了就轉店員 */
+const R=[
+ [/身體|健康|氣喘|心臟|高血壓|懷孕|生理|暈|過敏|感冒|吃藥|受傷|能不能下水|可以下水|可不可以下水/,async()=>{await bot('這個要請教練確認才準～我幫你轉給店員，身體細節先不用傳到這裡唷。');flag('待教練確認：個別身體狀況')}],
+ [/真人|店員|客服|老闆|打電話/,async()=>flowHuman()],
+ [/取消|退款|改期|颱風|下雨|付款|匯款|收據|發票|訂單|換宿|打工/,async()=>{await bot('這個牽涉到訂單或個別安排，要請店員處理唷，我幫你轉過去～');flag('待店員處理：訂單或個別安排')}],
+ [/錢|費用|價|貴|多少/,price],
+ [/多久|幾小時|時長|多長/,async()=>{await bot('一場大約 1.5～2 小時唷。（示範：正式版要用店家核准的資料）');chips([['我想預約',()=>flowBook()],['回主選單',back]])}],
+ [/新手|第一次|不會游|怕水|沒玩過/,async()=>{await bot('第一次玩也可以～教練會先教基本的，再一步一步帶你。你們預計哪天來？我先幫你記下來。');chips([['我想預約',()=>flowBook()],['回主選單',back]])}],
+ [/帶|準備|防曬|泳衣|毛巾|穿/,async()=>{await bot('出發前請穿好泳裝、帶水瓶和毛巾，也請不要擦防曬乳或保養品唷。（示範：正式版要用店家核准的資料）');chips([['回主選單',back]])}],
+ [/預約|訂位|報名|想訂/,()=>flowBook()],
+ [/活動|浮潛|SUP|潛水|體驗/,flowInfo]
+];
+async function route(t){
+  for(const [re,fn] of R){if(re.test(t))return fn()}
+  await bot('這個我不確定，怕答錯～我幫你請店員確認唷。');flag('待店員確認：超出小幫手能回答的範圍');
+  chips([['看看店員端',async()=>{openStaff()}],['回主選單',back]])
+}
+$('#f').onsubmit=async e=>{
+  e.preventDefault();const t=txt.value.trim();if(!t||busy)return;txt.value='';busy=true;chipsEl.innerHTML='';add('me',t);
+  if(S.paused){sys('店員接手中，小幫手不會回這則（示範）');chips([['（示範）店員處理完，交還小幫手',resume]]);busy=false;return}
+  await route(t);busy=false
+};
+reset();
+</script>
+</body>
+</html>
