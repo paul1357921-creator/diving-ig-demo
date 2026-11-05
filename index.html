@@ -75,10 +75,10 @@ const log=$('#log'),chipsEl=$('#chips'),txt=$('#txt');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let S,busy=false;
 
-function fresh(){return{activity:'尚未選擇',date:'尚未填寫',people:null,peopleOld:[],time:'尚未填寫',coach:'尚未填寫',status:'目前沒有待處理的案件',ok:false,paused:false}}
+function fresh(){return{activity:'尚未選擇',date:'尚未填寫',people:null,peopleOld:[],time:'尚未填寫',coach:'尚未填寫',status:'目前沒有待處理的案件',ok:false,paused:false,last:''}}
 function reset(){S=fresh();log.innerHTML='';chipsEl.innerHTML='';busy=false;renderStaff();$('#staffBtn').classList.remove('on');intro()}
 
-function add(who,t){const d=document.createElement('div');d.className='msg '+who;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
+function add(who,t){if(who==='me')S.last=t;const d=document.createElement('div');d.className='msg '+who;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
 function sys(t){const d=document.createElement('div');d.className='sys';d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
 async function bot(...ts){for(const t of ts){const ty=document.createElement('div');ty.className='typing';ty.innerHTML='<i></i><i></i><i></i>';log.appendChild(ty);log.scrollTop=log.scrollHeight;await sleep(550);ty.remove();add('bot',t)}}
 function chips(list){chipsEl.innerHTML='';list.forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>pick(label,fn);chipsEl.appendChild(b)})}
@@ -86,7 +86,10 @@ async function pick(label,fn){if(busy)return;busy=true;chipsEl.innerHTML='';add(
 
 function renderStaff(){
   const p=S.people?(S.peopleOld.length?S.peopleOld.map(x=>x+' 位').join(' → ')+' → 最新 '+S.people+' 位':S.people+' 位'):'尚未填寫';
-  const rows=[['活動',S.activity],['日期',S.date],['希望時段',S.time],['人數',p],['特別要求',S.coach],['提醒','個別身體狀況請教練確認']];
+  const rows=[['活動',S.activity],['日期',S.date],['希望時段',S.time],['人數',p],['特別要求',S.coach]];
+  const st=S.status,note=/身體|長輩/.test(st)?'請教練確認個別身體狀況，再回覆客人':/客製/.test(st)?'客人要客製化活動，請店員直接討論內容與報價':/教練可接/.test(st)?'請確認該時段教練排班，再回覆客人':/費用/.test(st)?'請依現行價格表回覆客人':/名額/.test(st)?'請確認名額與教練排班，再回覆客人':/訂單|個別安排/.test(st)?'牽涉訂單或個別安排，請店員處理':/不確定|超出/.test(st)?'小幫手答不了，請店員直接回覆':null;
+  if(S.last&&note)rows.push(['客人最後說',S.last]);
+  if(note)rows.push(['請店員做',note]);
   $('#staffRows').innerHTML=rows.map(r=>`<div class="row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('')+
     `<div class="row"><span>狀態</span><span><span class="st ${S.ok?'ok':''}">${S.status}</span></span></div>`+
     (S.paused?'<div class="row"><span>小幫手</span><span>已暫停這串對話</span></div>':'');
