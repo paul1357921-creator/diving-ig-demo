@@ -100,33 +100,34 @@ $('#resetBtn').onclick=reset;
 
 const main=()=>chips([['了解活動與費用',flowInfo],['我想預約',()=>flowBook()],['我想找真人',flowHuman]]);
 
-async function intro(){busy=true;await bot('哈囉～我是酷落潛水的自動小幫手🙂','想先了解活動、留預約需求，還是找店員聊？\n（也可以直接打字問我）');main();busy=false}
+async function intro(){busy=true;await bot('哈囉～我是酷落潛水的自動小幫手😊','想先了解活動、留預約需求，還是找店員聊？\n（也可以直接打字問我）');main();busy=false}
 
-async function flowInfo(){await bot('目前示範這幾種活動，你想先看哪一個？');chips([['SUP＋深度浮潛',()=>actInfo('SUP＋深度浮潛')],['體驗潛水',()=>actInfo('體驗潛水')],['回主選單',back]])}
+async function flowInfo(){await bot('目前示範這幾種活動，您想先看哪一個？');chips([['SUP＋深度浮潛',()=>actInfo('SUP＋深度浮潛')],['體驗潛水',()=>actInfo('體驗潛水')],['客製化或特別安排',custom],['回主選單',back]])}
+async function custom(){await bot('客製的活動我們很樂意幫忙～','內容和報價要由店員跟您討論，我先幫您轉過去😊');flag('待店員處理：客製化活動與報價');chips([['看看店員端',async()=>{openStaff()}],['回主選單',back]])}
 async function back(){await bot('好唷，回到主選單～');main()}
 async function actInfo(a){
   if(a==='SUP＋深度浮潛')await bot('兩項可以排在同一場，約 1.5～2 小時唷。','第一次玩也可以，教練會先教～','（示範：時長與包含項目取自過去對話，正式版要用店家核准的資料）');
-  else await bot('體驗潛水由教練一步一步帶你，一場約 1.5～2 小時。','下水前會先確認身體狀況，適不適合要由教練判斷唷。','（示範：正式版要用店家核准的資料）');
+  else await bot('體驗潛水由教練一步一步帶您，一場約 1.5～2 小時。','下水前會先確認身體狀況，適不適合要由教練判斷唷。','（示範：正式版要用店家核准的資料）');
   chips([['大概多少錢？',price],['長輩或新手也可以嗎？',story],['我想預約這個',()=>flowBook(a)],['找店員聊',flowHuman],['回主選單',back]])
 }
 function card(t,s){const d=document.createElement('div');d.className='msg bot storycard';d.innerHTML='<b></b><br><span></span>';d.querySelector('b').textContent=t;d.querySelector('span').textContent=s;log.appendChild(d);log.scrollTop=log.scrollHeight}
 async function story(){
-  await bot('店裡有帶過長輩和不同狀況的客人下水～我放一則示意卡片給你看。');
+  await bot('店裡有帶過長輩和不同狀況的客人下水～我放一則示意卡片給您看。');
   card('【示意】人物故事貼文','長輩完成人生夢想清單的影片（連結要店家核准）');
-  await bot('實際能不能參加，要請教練確認唷。我幫你轉給店員～');
+  await bot('實際能不能參加，要請教練確認唷。我幫您轉給店員～');
   flag('待教練確認：長輩或身體條件');
   chips([['我想預約',()=>flowBook()],['看看店員端',async()=>{openStaff()}],['回主選單',back]])
 }
 async function price(){
-  await bot('費用我會照店家核准的現行價格表回覆。','示範版沒有放入價格，這題我先幫你請店員確認唷。');
+  await bot('費用我會照店家核准的現行價格表回覆。','示範版沒有放入價格，這題我先幫您請店員確認唷。');
   flag('待店員回覆：費用');
   chips([['我想預約',()=>flowBook()],['看看店員端',async()=>{openStaff()}],['回主選單',back]])
 }
 
 async function flowBook(a){
   S.people=null;S.peopleOld=[];
-  if(a){S.activity=a;await bot('好唷，幫你記下「'+a+'」。')}
-  else{await bot('好唷～先選一個你想了解的活動：');return chips([['SUP＋深度浮潛',()=>setAct('SUP＋深度浮潛')],['體驗潛水',()=>setAct('體驗潛水')],['還不確定',()=>setAct('還不確定，請店員建議')]])}
+  if(a){S.activity=a;await bot('好唷，幫您記下「'+a+'」。')}
+  else{await bot('好唷～先選一個您想了解的活動：😊');return chips([['SUP＋深度浮潛',()=>setAct('SUP＋深度浮潛')],['體驗潛水',()=>setAct('體驗潛水')],['還不確定',()=>setAct('還不確定，請店員建議')]])}
   askDate()
 }
 async function setAct(a){S.activity=a;await bot('好唷，記下「'+a+'」。');askDate()}
@@ -136,16 +137,16 @@ async function setPeople(n){S.people=n;await bot('好的，'+n+' 位。比較想
 async function setTime(t){S.time=t;await bot('有沒有想指定的教練，或其他特別要求嗎？');chips([['想指定之前認識的教練',()=>setCoach('指定教練')],['沒有特別要求',()=>setCoach('無')]])}
 async function setCoach(c){S.coach=c;summary()}
 async function summary(){
-  await bot('我跟你確認一下👇\n活動：'+S.activity+'\n日期：'+S.date+'\n人數：'+S.people+' 位\n時段：'+S.time+'\n特別要求：'+S.coach+'\n\n對嗎？');
+  await bot('跟您確認一下👇\n活動：'+S.activity+'\n日期：'+S.date+'\n人數：'+S.people+' 位\n時段：'+S.time+'\n特別要求：'+S.coach+'\n\n對嗎？');
   chips([['沒錯，交給店員',submit],['人數要改',editPeople],['重新填',()=>flowBook()]])
 }
 async function editPeople(){await bot('好唷，改成幾位呢？');chips([['5 位',()=>changeP(5)],['6 位',()=>changeP(6)],['8 位',()=>changeP(8)]])}
 async function changeP(n){
   if(S.people!==n)S.peopleOld.push(S.people);S.people=n;
-  await bot('好唷，幫你改成 '+n+' 位。更新後的資料我會一起交給店員，店員拿到的是最新版。');summary()
+  await bot('好唷，幫您改成 '+n+' 位。更新後的資料我會一起交給店員，店員拿到的是最新版。');summary()
 }
 async function submit(){
-  await bot('收到～我把活動、日期、人數和你的需求整理好交給店員了。','名額和教練要由店員確認，確認前還不算訂到唷。');
+  await bot('收到～我把活動、日期、人數和您的需求整理好交給店員了。','名額和教練要由店員確認，確認前還不算訂到唷。');
   flag('待店員確認名額與排班');
   chips([['看看店員端收到什麼',async()=>{openStaff()}],['回主選單',back]])
 }
@@ -155,24 +156,26 @@ async function flowHuman(){
   await bot('好唷，我請店員來接手，請稍等～');sys('小幫手已暫停這串對話，避免兩邊同時回');
   chips([['看看店員端',async()=>{openStaff()}],['（示範）店員處理完，交還小幫手',resume]])
 }
-async function resume(){S.paused=false;flag('已交還小幫手',true);await bot('嗨～我回來了，還有什麼我可以幫你的嗎？');main()}
+async function resume(){S.paused=false;flag('已交還小幫手',true);await bot('嗨～我回來了，還有什麼我可以幫您的嗎？');main()}
 
 /* 自由輸入：關鍵字對應，答不了就轉店員 */
 const R=[
- [/身體|健康|氣喘|心臟|高血壓|懷孕|生理|暈|過敏|感冒|吃藥|受傷|能不能下水|可以下水|可不可以下水/,async()=>{await bot('這個要請教練確認才準～我幫你轉給店員，身體細節先不用傳到這裡唷。');flag('待教練確認：個別身體狀況')}],
+ [/身體|健康|氣喘|心臟|高血壓|懷孕|生理|暈|過敏|感冒|吃藥|受傷|能不能下水|可以下水|可不可以下水/,async()=>{await bot('這個要請教練確認才準～我幫您轉給店員，身體細節先不用傳到這裡唷。');flag('待教練確認：個別身體狀況')}],
+ [/客製|包場|訂製|求婚|婚紗|公司旅遊|團體|畢旅|特別安排|其他活動/,custom],
+ [/教練.*(空|有沒有|可以接)|有沒有.*教練|還有.*(位|名額)|排得到|有空位/,async()=>{await bot('這要看當天教練的排班，我請店員幫您確認唷～');flag('待店員確認：該時段有沒有教練可接');chips([['看看店員端',async()=>{openStaff()}],['回主選單',back]])}],
  [/真人|店員|客服|老闆|打電話/,async()=>flowHuman()],
- [/取消|退款|改期|颱風|下雨|付款|匯款|收據|發票|訂單|換宿|打工/,async()=>{await bot('這個牽涉到訂單或個別安排，要請店員處理唷，我幫你轉過去～');flag('待店員處理：訂單或個別安排')}],
+ [/取消|退款|改期|颱風|下雨|付款|匯款|收據|發票|訂單|換宿|打工/,async()=>{await bot('這個牽涉到訂單或個別安排，要請店員處理唷，我幫您轉過去～');flag('待店員處理：訂單或個別安排')}],
  [/錢|費用|價|貴|多少/,price],
  [/多久|幾小時|時長|多長/,async()=>{await bot('一場大約 1.5～2 小時唷。（示範：正式版要用店家核准的資料）');chips([['我想預約',()=>flowBook()],['回主選單',back]])}],
  [/長輩|爺爺|奶奶|老人|銀髮|身障|行動不便/,story],
- [/新手|第一次|不會游|怕水|沒玩過/,async()=>{await bot('第一次玩也可以～教練會先教基本的。','你們預計哪天來？我先幫你記下來。');chips([['我想預約',()=>flowBook()],['回主選單',back]])}],
+ [/新手|第一次|不會游|怕水|沒玩過/,async()=>{await bot('第一次玩也可以～教練會先教基本的。','請問您預計哪天來？我先幫您記下來。');chips([['我想預約',()=>flowBook()],['回主選單',back]])}],
  [/帶|準備|防曬|泳衣|毛巾|穿/,async()=>{await bot('出發前請穿好泳裝、帶水瓶和毛巾，也請不要擦防曬乳或保養品唷。（示範：正式版要用店家核准的資料）');chips([['回主選單',back]])}],
  [/預約|訂位|報名|想訂/,()=>flowBook()],
  [/活動|浮潛|SUP|潛水|體驗/,flowInfo]
 ];
 async function route(t){
   for(const [re,fn] of R){if(re.test(t))return fn()}
-  await bot('這個我不確定，怕答錯～我幫你請店員確認唷。');flag('待店員確認：超出小幫手能回答的範圍');
+  await bot('這個我不確定，怕答錯～我幫您請店員確認唷。');flag('待店員確認：超出小幫手能回答的範圍');
   chips([['看看店員端',async()=>{openStaff()}],['回主選單',back]])
 }
 $('#f').onsubmit=async e=>{
