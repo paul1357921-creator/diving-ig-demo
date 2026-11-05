@@ -90,7 +90,7 @@ let S,busy=false;
 function fresh(){return{activity:'尚未選擇',date:'尚未填寫',people:null,peopleOld:[],time:'尚未填寫',coach:'尚未填寫',status:'目前沒有待處理的案件',ok:false,paused:false,last:'',seen:''}}
 function reset(){S=fresh();log.innerHTML='';chipsEl.innerHTML='';busy=false;renderStaff();$('#staffBtn').classList.remove('on');intro()}
 
-function add(who,t){if(who==='me')S.last=t;const d=document.createElement('div');d.className='msg '+who;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
+function add(who,t){if(who==='me'&&!/^(看看店員端|回主選單|（示範）)/.test(t))S.last=t;const d=document.createElement('div');d.className='msg '+who;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
 function sys(t){const d=document.createElement('div');d.className='sys';d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
 async function bot(...ts){for(const t of ts){const ty=document.createElement('div');ty.className='typing';ty.innerHTML='<i></i><i></i><i></i>';log.appendChild(ty);log.scrollTop=log.scrollHeight;await sleep(550);ty.remove();add('bot',t)}}
 function chips(list){chipsEl.innerHTML='';list.forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>pick(label,fn);chipsEl.appendChild(b)})}
