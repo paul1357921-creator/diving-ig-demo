@@ -23,6 +23,15 @@ header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:
 .bot{align-self:flex-start;background:var(--bot)}
 .me{align-self:flex-end;background:var(--me);color:#fff}
 .storycard{border:1px dashed #555;background:#1b1b1b;font-size:14px}
+.rail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;align-self:stretch;margin:0 -16px;padding:0 16px 6px}
+.rc{flex:0 0 76%;scroll-snap-align:start;background:#1b1b1b;border:1px solid #333;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.rc img,.rc .ph{width:100%;height:128px;object-fit:cover;display:block}
+.rc .ph{display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg,#123a55,#0b6b7a)}
+.rc .b{padding:10px 12px 6px;font-size:14px;line-height:1.5;flex:1}.rc .b b{display:block;font-size:15px;margin-bottom:2px}
+.rc .sub{color:var(--sub);font-size:12px}
+.rc button{margin:6px 12px 12px;background:none;color:var(--text);border:1px solid #555;border-radius:14px;padding:8px;font-size:14px}
+.credit{align-self:flex-start;color:var(--sub);font-size:11px;padding:0 4px}
+#pin{padding:4px 16px 0}#pin button{background:#1b2735;color:#9ec7ff;border:none;border-radius:16px;padding:7px 14px;font-size:14px}
 .sys{align-self:center;color:var(--sub);font-size:12px;text-align:center;padding:2px 10px}
 .typing{align-self:flex-start;background:var(--bot);border-radius:18px;padding:11px 14px;display:flex;gap:4px}
 .typing i{width:6px;height:6px;border-radius:50%;background:var(--sub);animation:b 1s infinite}
@@ -56,6 +65,7 @@ form button{background:none;border:none;color:var(--me);font-size:15px;font-weig
   <div class="banner">這是客服流程示意：台詞與資料都是示範，沒有連到真實 IG，也不會收集任何資料。<a href="report.html" style="color:#f5c518">看分析報告 →</a></div>
   <div id="log" aria-live="polite"></div>
   <div id="chips"></div>
+  <div id="pin"><button type="button" id="humanBtn">🙋 我有問題想問，找真人</button></div>
   <form id="f" autocomplete="off">
     <input id="txt" type="text" placeholder="也可以自己打字問問看…" enterkeyhint="send">
     <button type="submit">傳送</button>
@@ -75,7 +85,7 @@ const log=$('#log'),chipsEl=$('#chips'),txt=$('#txt');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let S,busy=false;
 
-function fresh(){return{activity:'尚未選擇',date:'尚未填寫',people:null,peopleOld:[],time:'尚未填寫',coach:'尚未填寫',status:'目前沒有待處理的案件',ok:false,paused:false,last:''}}
+function fresh(){return{activity:'尚未選擇',date:'尚未填寫',people:null,peopleOld:[],time:'尚未填寫',coach:'尚未填寫',status:'目前沒有待處理的案件',ok:false,paused:false,last:'',seen:''}}
 function reset(){S=fresh();log.innerHTML='';chipsEl.innerHTML='';busy=false;renderStaff();$('#staffBtn').classList.remove('on');intro()}
 
 function add(who,t){if(who==='me')S.last=t;const d=document.createElement('div');d.className='msg '+who;d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight}
@@ -100,18 +110,36 @@ $('#staffBtn').onclick=openStaff;
 $('#closeSheet').onclick=()=>$('#sheet').classList.remove('open');
 $('#sheet').onclick=e=>{if(e.target.id==='sheet')e.currentTarget.classList.remove('open')};
 $('#resetBtn').onclick=reset;
+$('#humanBtn').onclick=()=>pick('我有問題想問，找真人',flowHuman);
 
-const main=()=>chips([['了解活動與費用',flowInfo],['我想預約',()=>flowBook()],['我想找真人',flowHuman]]);
+const main=()=>{const l=[['了解活動與費用',flowInfo],['我想預約',()=>flowBook()],['我想找真人',flowHuman]];if(S.seen)l.push(['（示範）隔天再回來',comeBack]);chips(l)};
+async function comeBack(){sys('— 隔天，同一位客人再傳訊息 —');await bot('嗨～歡迎回來😊','上次您看的是「'+S.seen+'」，要繼續預約，還是看看別的？');chips([['繼續預約這個',()=>flowBook(S.seen)],['看看別的活動',flowInfo],['回主選單',back]])}
 
 async function intro(){busy=true;await bot('哈囉～我是酷落潛水的自動小幫手😊','想先了解活動、留預約需求，還是找店員聊？\n（也可以直接打字問我）');main();busy=false}
 
-async function flowInfo(){await bot('目前示範這幾種活動，您想先看哪一個？');chips([['SUP＋深度浮潛',()=>actInfo('SUP＋深度浮潛')],['體驗潛水',()=>actInfo('體驗潛水')],['客製化或特別安排',custom],['回主選單',back]])}
+function rail(){
+  const d=document.createElement('div');d.className='rail';
+  const cs=[
+   {img:'img/sea.jpg',t:'SUP＋深度浮潛',w:'第一次玩也可以，教練會先教',h:'約 1.5～2 小時',a:()=>actInfo('SUP＋深度浮潛')},
+   {img:'img/turtle.jpg',t:'體驗潛水',w:'由教練一步一步帶，下水前先確認身體狀況',h:'約 1.5～2 小時',a:()=>actInfo('體驗潛水')},
+   {ph:'🤿',t:'客製化或特別安排',w:'包場、團體、婚紗拍攝等',h:'內容與報價由店員討論',a:custom}
+  ];
+  cs.forEach(c=>{const e=document.createElement('div');e.className='rc';
+    e.innerHTML=(c.img?'<img alt="">':'<div class="ph"></div>')+'<div class="b"><b></b><span></span><div class="sub"></div></div><button type="button">看這個</button>';
+    if(c.img)e.querySelector('img').src=c.img;else e.querySelector('.ph').textContent=c.ph;
+    e.querySelector('b').textContent=c.t;e.querySelector('span').textContent=c.w;e.querySelector('.sub').textContent=c.h;
+    e.querySelector('button').onclick=()=>pick('看「'+c.t+'」',c.a);d.appendChild(e)});
+  log.appendChild(d);
+  const cr=document.createElement('div');cr.className='credit';cr.textContent='示意圖取自店家公開貼文；正式版改用店家核准的照片。時長與說明為示範。';log.appendChild(cr);
+  log.scrollTop=log.scrollHeight
+}
+async function flowInfo(){await bot('目前示範這三種，左右滑動看看～');rail();chips([['回主選單',back]])}
 async function custom(){await bot('客製的活動我們很樂意幫忙～','內容和報價要由店員跟您討論，我先幫您轉過去😊');flag('待店員處理：客製化活動與報價');chips([['看看店員端',async()=>{openStaff()}],['回主選單',back]])}
 async function back(){await bot('好唷，回到主選單～');main()}
-async function actInfo(a){
+async function actInfo(a){S.seen=a;
   if(a==='SUP＋深度浮潛')await bot('兩項可以排在同一場，約 1.5～2 小時唷。','第一次玩也可以，教練會先教～','（示範：時長與包含項目取自過去對話，正式版要用店家核准的資料）');
   else await bot('體驗潛水由教練一步一步帶您，一場約 1.5～2 小時。','下水前會先確認身體狀況，適不適合要由教練判斷唷。','（示範：正式版要用店家核准的資料）');
-  chips([['大概多少錢？',price],['長輩或新手也可以嗎？',story],['我想預約這個',()=>flowBook(a)],['找店員聊',flowHuman],['回主選單',back]])
+  chips([['我想看價格',price],['長輩或新手也可以嗎？',story],['我想預約這個',()=>flowBook(a)],['找店員聊',flowHuman],['回主選單',back]])
 }
 function card(t,s){const d=document.createElement('div');d.className='msg bot storycard';d.innerHTML='<b></b><br><span></span>';d.querySelector('b').textContent=t;d.querySelector('span').textContent=s;log.appendChild(d);log.scrollTop=log.scrollHeight}
 async function story(){
