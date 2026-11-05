@@ -115,7 +115,7 @@ $('#humanBtn').onclick=()=>pick('我有問題想問，找真人',flowHuman);
 const main=()=>{const l=[['了解活動與費用',flowInfo],['我想預約',()=>flowBook()],['我想找真人',flowHuman]];if(S.seen)l.push(['（示範）隔天再回來',comeBack]);chips(l)};
 async function comeBack(){sys('— 隔天，同一位客人再傳訊息 —');await bot('嗨～歡迎回來😊','上次您看的是「'+S.seen+'」，要繼續預約，還是看看別的？');chips([['繼續預約這個',()=>flowBook(S.seen)],['看看別的活動',flowInfo],['回主選單',back]])}
 
-async function intro(){busy=true;await bot('哈囉～我是酷落潛水的自動小幫手😊','想先了解活動、留預約需求，還是找店員聊？\n（也可以直接打字問我）');main();busy=false}
+async function intro(){busy=true;await bot('您好，很高興為您服務😊','我是酷落潛水的自動小幫手。想先了解活動、留預約需求，還是找店員聊？\n（也可以直接打字問我）');main();busy=false}
 
 function rail(){
   const d=document.createElement('div');d.className='rail';
@@ -177,7 +177,7 @@ async function changeP(n){
   await bot('好唷，幫您改成 '+n+' 位。更新後的資料我會一起交給店員，店員拿到的是最新版。');summary()
 }
 async function submit(){
-  await bot('收到～我把活動、日期、人數和您的需求整理好交給店員了。','名額和教練要由店員確認，確認前還不算訂到唷。');
+  await bot('收到～我把活動、日期、人數和您的需求整理好交給店員了。','名額和教練要由店員確認，確認前還不算訂到唷。','期待現場接待您喔😊');
   flag('待店員確認名額與排班');
   chips([['看看店員端收到什麼',async()=>{openStaff()}],['回主選單',back]])
 }
