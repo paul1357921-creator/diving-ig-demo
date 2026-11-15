@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>酷落 LINE 小幫手進度</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* 版面：手機優先的單欄長頁；潛店色系＝深海藍、珊瑚、沙色；章節依「做了什麼 → 能做什麼 → 發現 → 請你決定」排 */
+:root {
+  --bg: #f5f1e8;
+  --surface: #ffffff;
+  --ink: #12283a;
+  --mute: #5b6f7f;
+  --line: #dcd5c6;
+  --sea: #0e7f8f;
+  --sea-soft: #d8eef0;
+  --coral: #d9623f;
+  --coral-soft: #fbe3da;
+  --sand: #e9b44c;
+  --done: #2f8f5b;
+  --half: #c58a12;
+  --todo: #8a97a3;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1f2d; --surface: #152d40; --ink: #eef3f6; --mute: #9fb3c2; --line: #284660;
+    --sea: #4cc3cf; --sea-soft: #173f4f; --coral: #f08a6c; --coral-soft: #3d2620; --sand: #f2c46b;
+    --done: #6fd3a8; --half: #f2c46b; --todo: #8197a8; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1f2d; --surface: #152d40; --ink: #eef3f6; --mute: #9fb3c2; --line: #284660;
+  --sea: #4cc3cf; --sea-soft: #173f4f; --coral: #f08a6c; --coral-soft: #3d2620; --sand: #f2c46b;
+  --done: #6fd3a8; --half: #f2c46b; --todo: #8197a8; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.75; }
+.wrap { max-width: 720px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { text-wrap: balance; line-height: 1.35; margin: 0; }
+h1 { font-size: 30px; font-weight: 900; }
+h2 { font-size: 23px; font-weight: 900; margin-bottom: 14px; }
+h3 { font-size: 18px; font-weight: 700; }
+p { margin: 0; }
+.eyebrow { font-size: 14px; letter-spacing: .12em; color: var(--sea); font-weight: 700; }
+.lead { font-size: 18px; color: var(--mute); margin-top: 10px; }
+section { margin-top: 44px; display: flex; flex-direction: column; gap: 14px; }
+.note { background: var(--coral-soft); border-radius: 14px; padding: 14px 16px; font-size: 16px; }
+.note b { color: var(--coral); }
+video { width: 100%; max-width: 360px; aspect-ratio: 9 / 16; border-radius: 18px; background: #000; display: block; margin: 0 auto; }
+.cap { text-align: center; font-size: 14px; color: var(--mute); }
+
+.timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+.timeline li { display: grid; grid-template-columns: 74px 1fr; gap: 12px; padding-block: 12px; border-bottom: 1px solid var(--line); }
+.timeline li:last-child { border-bottom: 0; }
+.date { font-weight: 700; color: var(--sea); font-variant-numeric: tabular-nums; }
+.timeline p { color: var(--mute); font-size: 16px; min-width: 0; }
+.timeline h3 { margin-bottom: 2px; }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 560px) { .cols { grid-template-columns: 1fr; } }
+.box { background: var(--surface); border-radius: 16px; padding: 16px 18px; border: 1px solid var(--line); min-width: 0; }
+.box.can { border-top: 6px solid var(--sea); }
+.box.hand { border-top: 6px solid var(--coral); }
+.box ul { margin: 8px 0 0; padding-left: 1.1em; font-size: 16px; }
+.box li + li { margin-top: 4px; }
+
+.steps { counter-reset: s; display: flex; flex-direction: column; gap: 10px; }
+.step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+.step::before { counter-increment: s; content: counter(s); width: 34px; height: 34px; border-radius: 50%; background: var(--coral); color: #fff;
+  font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+.chat { background: #8cabd8; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.b { max-width: 85%; padding: 9px 14px; border-radius: 16px; font-size: 15px; line-height: 1.55; color: #16212b; }
+.b.me { align-self: flex-end; background: #9de693; border-top-right-radius: 4px; }
+.b.ai { align-self: flex-start; background: #fff; border-top-left-radius: 4px; }
+.b.old { align-self: flex-start; background: #fff; border-top-left-radius: 4px; text-decoration: line-through; opacity: .7; }
+.tag { font-size: 13px; font-weight: 700; color: var(--mute); margin-bottom: -4px; }
+
+.finds { display: flex; flex-direction: column; gap: 12px; }
+.find { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; }
+.find p { color: var(--mute); font-size: 16px; margin-top: 4px; }
+
+.needs { display: flex; flex-direction: column; gap: 10px; }
+.need { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; background: var(--surface); border-radius: 14px; padding: 12px 16px; border-left: 6px solid var(--todo); }
+.need.done { border-left-color: var(--done); } .need.half { border-left-color: var(--half); }
+.need .st { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.need.done .st { color: var(--done); } .need.half .st { color: var(--half); } .need.todo .st { color: var(--todo); }
+.need p { grid-column: 1 / -1; color: var(--mute); font-size: 15px; }
+
+.money { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 480px) { .money { grid-template-columns: 1fr; } }
+.stat { background: var(--surface); border-radius: 16px; padding: 14px; text-align: center; border: 1px solid var(--line); }
+.stat b { display: block; font-size: 28px; font-weight: 900; color: var(--sea); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 14px; color: var(--mute); }
+
+.ask { display: flex; flex-direction: column; gap: 10px; }
+.ask div { background: var(--sea-soft); border-radius: 14px; padding: 12px 16px; }
+.ask div p { font-size: 15px; color: var(--mute); }
+footer { margin-top: 48px; font-size: 14px; color: var(--mute); border-top: 1px solid var(--line); padding-top: 16px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">酷落潛水 × LINE 小幫手</div>
+    <h1>小幫手做到哪裡了</h1>
+    <p class="lead">11/04–11/15 的進度整理。一句話：小幫手已經能在電腦裡像雅雅一樣接住客人，問清楚資料、整理成紀錄，遇到該由真人決定的事就交給雅雅。還沒有接上酷落真正的 LINE。</p>
+  </header>
+
+  <section>
+    <h2>先看 3 分半的示範影片</h2>
+    <video src="demo.mp4" controls playsinline preload="metadata"></video>
+    <p class="cap">畫面裡的對話都是演練原文；客人的話是照真實對話改寫的假資料。</p>
+  </section>
+
+  <section>
+    <h2>我們做了哪些事</h2>
+    <ol class="timeline">
+      <li><span class="date">11/04</span><div><h3>第一版：IG 按鈕示意頁</h3><p>客人按按鈕選活動、日期、人數，小幫手照固定台詞回答。先讓大家看到「自動回覆」大概長什麼樣子。</p></div></li>
+      <li><span class="date">11/10</span><div><h3>Google Meet 訪談 90 分鐘</h3><p>把錄音轉成逐字稿，整理出你們最想要的五件事（見下方「五個需求」）。最重要的一句：想要的是對話式，留在 LINE 裡，不是按鈕。</p></div></li>
+      <li><span class="date">11/11–13</span><div><h3>研究 LINE 能怎麼做</h3><p>比較兩條路：LINE 官方帳號內建的 AI 聊天（聊天進階方案每月 NT$100，適合回答常見問題），以及自己接一個小程式到 LINE（才做得到一問一答收資料、整理成訂單）。結論是先做「對話接待 → 整理紀錄 → 雅雅確認」。</p></div></li>
+      <li><span class="date">11/13</span><div><h3>讀 LINE 後台的對話樣本</h3><p>從真實對話歸納出兩類客人：第一次來體驗的，以及有證照、玩好幾天、常改行程的。客人的姓名、電話、證件都不抄進資料。</p></div></li>
+      <li><span class="date">11/14–15</span><div><h3>寫小幫手的工作手冊，反覆演練</h3><p>手冊就是一份文字說明：價目表、什麼能回答、什麼一定交給雅雅、說話口氣。用 30 個情境讓 AI 扮演小幫手，一題一題檢查，改了 4 個版本。最後再拿雅雅兩段從詢價聊到出發的真實對話，當語氣的參考。</p></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>為什麼不用 LINE 內建的 AI 聊天機器人</h2>
+    <p class="note"><b>先說清楚：</b>客人還是加酷落原本的 LINE 官方帳號聊天，帳號不換，客人那邊沒有任何差別。換掉的只是「回覆的大腦」。</p>
+    <p>LINE 官方帳號本身有 AI 聊天機器人功能（依 LINE 官網：要開「聊天進階方案」，每月 NT$100，目前是測試版；實際方案以酷落帳號看到的為準）。它比較像<b>一本會自動翻頁的常見問答</b>：把價目表、須知上傳後，客人問「體驗多少錢」「幾點集合」，它會找出答案回覆。</p>
+    <p>但 11/10 開會時，你們最想要的是：</p>
+    <div class="box"><ul>
+      <li>一問一答，把日期、人數、經驗、代訂需求<b>問齊</b></li>
+      <li>整理成一張<b>詳細訂單</b>給雅雅</li>
+      <li>遇到匯款、安全、現場急件時<b>停下來交給雅雅</b></li>
+      <li>說話<b>像雅雅本人</b></li>
+    </ul></div>
+    <p>內建的 AI 主要是回答問題，目前沒看到它能一路收集資料、整理成訂單，也不能照你們的規則決定哪些事要交給真人。所以我們選擇自己做一個小幫手，接在同一個 LINE 帳號後面。</p>
+    <p>如果之後發現只需要回答常見問題，內建的 AI 便宜又簡單，也是可以考慮的路線。這兩條路不衝突。</p>
+  </section>
+
+  <section>
+    <h2>小幫手是怎麼運作的</h2>
+    <p>可以想成<b>請了一位照店長工作手冊做事的櫃台實習生</b>：</p>
+    <div class="steps">
+      <div class="step"><p><b>一本工作手冊。</b>用一般文字寫成：價目、場次、行前須知、雅雅的說話習慣，以及「哪些事一定要交給雅雅」。雅雅想改內容，就像改一份文件。</p></div>
+      <div class="step"><p><b>客人在 LINE 傳訊息。</b>LINE 把訊息轉給小幫手，小幫手讀過手冊和前面的對話，寫出回覆，再用酷落的 LINE 帳號回給客人。</p></div>
+      <div class="step"><p><b>每聊一次就更新一張紀錄。</b>行程、報價、待辦、要不要交給雅雅，都存在一份表格裡，雅雅隨時打開都看得到。</p></div>
+      <div class="step"><p><b>遇到該交棒的事。</b>小幫手只回一句，然後通知雅雅。之後這位客人的訊息都由雅雅處理，直到她標成「處理完畢」，小幫手才重新上場。</p></div>
+      <div class="step"><p><b>錢的數字和個資另外把關。</b>總價一律由雅雅列，電腦只核對加總；客人的電話、證件在送給 AI 之前就先遮掉。</p></div>
+    </div>
+    <p class="note"><b>還沒驗證：</b>雅雅從 LINE 後台親自回覆時，小幫手收不到通知，所以才設計成「雅雅標記處理完畢」才恢復。這要等接上測試帳號才能實際試。</p>
+  </section>
+
+  <section>
+    <h2>跟第一版差在哪</h2>
+    <div class="cols">
+      <div class="box"><h3>第一版（IG 示意）</h3><ul><li>按按鈕選擇</li><li>只會照固定台詞</li><li>示範用的假資料</li><li>客人亂打字就接不住</li></ul></div>
+      <div class="box can"><h3>現在（LINE 演練）</h3><ul><li>客人怎麼打字都行</li><li>看懂意思再回，一次問五件事也會逐項答</li><li>用雅雅公開的價目、場次、行前須知</li><li>會記住講過的事，不重複問</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>小幫手會處理哪些狀況</h2>
+    <p>我們收集了 4 類客人、30 個情境：第一次體驗（4）、有證照玩好幾天（8）、問價格和意外狀況（7）、各種語氣（11）。</p>
+    <div class="cols">
+      <div class="box can">
+        <h3>自己就能回</h3>
+        <ul>
+          <li>場次、集合時間、行前準備、能不能戴隱形眼鏡</li>
+          <li>照價目表報單價（岸潛、船潛、裝備、複習課、機車、船票）</li>
+          <li>記下客人的日期、人數、經驗（氣瓶支數）</li>
+          <li>客人更正或改計畫，只改變動的部分</li>
+          <li>英文客人用英文回</li>
+        </ul>
+      </div>
+      <div class="box hand">
+        <h3>一定交給雅雅</h3>
+        <ul>
+          <li>名額、船位、教練安排（只說「幫您跟雅雅確認」）</li>
+          <li>整趟總價、訂金、匯款、退款</li>
+          <li>身體狀況、安全、很久沒潛能不能直接下水</li>
+          <li>颱風、停船、天候</li>
+          <li>現場「到了沒人」、抱怨、照片給錯</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>交給雅雅時怎麼運作</h2>
+    <div class="steps">
+      <div class="step"><p><b>小幫手只說一句。</b>例如「收到！我馬上請雅雅處理🙏」，不亂答、不保證。</p></div>
+      <div class="step"><p><b>馬上通知雅雅。</b>之後客人再傳的訊息，直接轉給雅雅，小幫手不再插話，避免兩邊講法不一樣。</p></div>
+      <div class="step"><p><b>雅雅看到一張整理好的紀錄。</b>為什麼交給她、還有哪些待辦、客人的行程和報價，不用從頭重讀整串對話。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>演練中的發現</h2>
+    <div class="finds">
+      <div class="find"><h3>AI 很守規矩，但會「換句話說」</h3><p>手冊寫「不可以說有位子」，它就改說「都可以幫您安排」，聽起來一樣像保證。後來把意思寫清楚，30 題都沒再出現。</p></div>
+      <div class="find"><h3>「好的呀」不是萬用開頭</h3><p>雅雅的口頭禪是好的呀，但客人擔心、嫌貴、不放心時，她不會這樣開頭。我們把雅雅在不同情境的開頭整理成一張表，小幫手照著選。</p></div>
+      <div class="find"><h3>潛水行話要教</h3><p>「氣瓶支數」本來被 AI 當成「這趟要潛幾支」，客人答 25 支它還一直追問。寫進手冊後，它會像雅雅一樣說「很棒耶」。</p></div>
+      <div class="find"><h3>錢的數字不交給 AI 算</h3><p>小幫手只報單價，整趟總價一律請雅雅列；客人說「大概抓個數字就好」也不估。雅雅列的報價，由程式核對加總。</p></div>
+      <div class="find"><h3>個資先遮再送給 AI</h3><p>客人的電話、身分證、生日，送出去之前由程式先遮掉，AI 只看到「已提供」。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>11/10 提的五個需求，做到哪了</h2>
+    <div class="needs">
+      <div class="need half"><h3>留在 LINE 裡，對話式</h3><span class="st">做到一半</span><p>對話已經會了，還沒接上酷落的 LINE。</p></div>
+      <div class="need done"><h3>問齊資料，整理成詳細訂單</h3><span class="st">演練已做到</span><p>自動整理行程、報價、待辦；總價由雅雅列。</p></div>
+      <div class="need done"><h3>真人隨時能接手</h3><span class="st">演練已做到</span><p>遇到該交棒的事，只說一句就交給雅雅。</p></div>
+      <div class="need done"><h3>像雅雅本人、能回英文</h3><span class="st">演練已做到</span><p>照雅雅的口氣選開頭；英文客人用英文回。</p></div>
+      <div class="need todo"><h3>行前提醒、店家自己能維護</h3><span class="st">還沒做</span><p>工作手冊是一份文字檔，之後教雅雅自己改；行前提醒還沒開始。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>大概要花多少錢</h2>
+    <div class="money">
+      <div class="stat"><b>約 NT$0.05</b><span>每次回覆的 AI 費用</span></div>
+      <div class="stat"><b>約 NT$15</b><span>每月 300 次回覆</span></div>
+      <div class="stat"><b>30 / 30</b><span>演練情境全部通過（7 題還有小地方要修）</span></div>
+    </div>
+    <p class="cap">AI 費用依演練實際用量換算。依 LINE 官網，回覆客人的訊息不另外算錢；之後若要主動發行前提醒，會用到 LINE 的訊息額度。放小程式的主機費用，等確定做法再另外估。</p>
+  </section>
+
+  <section>
+    <h2>想請雅雅決定的事</h2>
+    <div class="ask">
+      <div><h3>颱風能不能下水，要不要讓小幫手照標準說？</h3><p>像「沒停船、沒插紅旗、浪況可以就能下水，不行可以延期」。說了客人比較安心，但可能被當成保證。目前先一律交給雅雅。</p></div>
+      <div><h3>雙人房假日價格</h3><p>目前只有平日 3,000／晚。</p></div>
+      <div><h3>水肺體驗兩人以上有沒有優惠</h3><p>岸潛、船潛有雙人價，體驗目前只有 2,600／人。</p></div>
+      <div><h3>要不要先找一個 LINE 帳號試跑</h3><p>我們可以先用自己的測試帳號接上去，讓雅雅用手機當客人試聊，確認沒問題再談接酷落的 LINE。</p></div>
+    </div>
+  </section>
+
+  <footer>
+    整理：邵牧師與 AI 助理｜2026-11-15。<br>
+    所有演練都在電腦裡進行，沒有用酷落的帳號傳過任何訊息。
+  </footer>
+</div>
+</body>
+</html>
